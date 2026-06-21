@@ -1,0 +1,26 @@
+HexCore Revenant
+Copyright (c) AkashaCorporation / HikariSystem
+
+Licensed under the Apache License, Version 2.0 (the "License").
+You may obtain a copy of the License in the accompanying LICENSE file or at
+http://www.apache.org/licenses/LICENSE-2.0
+
+------------------------------------------------------------------------------
+Third-party software
+------------------------------------------------------------------------------
+
+This product is a WRAPPER. It does not fork or modify the upstream decompiler;
+it invokes a pinned version of it.
+
+ILSpy / ICSharpCode.Decompiler
+  https://github.com/icsharpcode/ILSpy
+  Copyright (c) AlphaSierraPapa for the SharpDevelop Team
+  Licensed under the MIT License.
+
+  Phase 1 (current): invoked at runtime via the `ilspycmd` global tool
+    (pinned 8.2.0.7535).
+  Phase 2 (planned): linked via a pinned `ICSharpCode.Decompiler` NuGet
+    PackageReference inside a self-contained C# wrapper.
+
+  The MIT License text is available at:
+  https://github.com/icsharpcode/ILSpy/blob/master/doc/license.txt
