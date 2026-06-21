@@ -2,6 +2,30 @@
 
 All notable changes to HexCore Revenant are documented here.
 
+## [0.2.0] - Unreleased - "Portable: the self-contained engine (Phase 2)"
+
+The user now receives a **portable binary** -- no .NET install, no `ilspycmd`, no
+library downloads -- exactly the native-prebuilt model. This is the shippable form;
+the Phase-1 `ilspycmd` shell-out remains only as a dev fallback.
+
+### Added
+- **`engine/Revenant/`** -- the C# engine: a thin wrapper (`Program.cs`) over a pinned
+  `ICSharpCode.Decompiler` 8.2.0.7535 (`Revenant.csproj`). Same CLI as ilspycmd
+  (`<assembly> [--ilcode] [-t <type>] [-r <dir>] [--version]`), so the TS runner is
+  unchanged across the backend swap. Wrap, not fork.
+- **`.github/workflows/revenant-prebuilds.yml`** -- `dotnet publish -r <rid>
+  --self-contained -p:PublishSingleFile=true` across win-x64 / linux-x64 / osx-x64 /
+  osx-arm64, packaged + attached to the release. Light build, no OOM.
+- **`src/ilspyRunner.ts`** -- backend resolution is now `override -> bundled engine
+  (bin/<plat>/) -> system ilspycmd`. The `RevenantResult.backend` field reports which
+  fired. A new test asserts the bundled engine is preferred.
+
+### Validated
+- Built `revenant-engine.exe` win-x64 (36 MB, single-file). Run with a stripped PATH
+  (no `dotnet`, no `ilspycmd` reachable) it still decompiles `Bypass.exe` and
+  `Accessibility.dll` -- proof it carries its own runtime + the decompiler. The runner
+  picks it up (`backend: 'bundled'`); 15/15 tests pass.
+
 ## [0.1.0] - Unreleased - "First light: managed decompile via ILSpy (MVP)"
 
 First cut of the managed (.NET / CIL) decompiler -- the "Better" tier of HexCore issue #32.

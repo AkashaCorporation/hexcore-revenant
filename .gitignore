@@ -1,6 +1,8 @@
 out/
 node_modules/
 bin/
+obj/
+publish/
 *.vsix
 .vscode-test/
 package-lock.json

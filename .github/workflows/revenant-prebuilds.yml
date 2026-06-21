@@ -1,0 +1,58 @@
+name: revenant-prebuilds
+
+# Builds the Phase-2 self-contained Revenant engine for every platform and
+# publishes the portable binaries as release assets -- the same prebuild model
+# the native (.node) engines use, but with `dotnet publish` instead of node-gyp.
+# `dotnet publish` is light (no LLVM/C++ compile), so this never OOMs.
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+jobs:
+  publish:
+    name: publish ${{ matrix.rid }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, rid: win-x64 }
+          - { os: ubuntu-latest,  rid: linux-x64 }
+          - { os: macos-latest,   rid: osx-x64 }
+          - { os: macos-14,       rid: osx-arm64 }
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish self-contained single-file
+        run: >
+          dotnet publish engine/Revenant/Revenant.csproj
+          -c Release -r ${{ matrix.rid }}
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -o publish/${{ matrix.rid }}
+
+      - name: Package
+        shell: bash
+        run: |
+          cd publish/${{ matrix.rid }}
+          rm -f *.pdb
+          tar -czf "../../revenant-engine-${{ matrix.rid }}.tar.gz" .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: revenant-engine-${{ matrix.rid }}
+          path: revenant-engine-${{ matrix.rid }}.tar.gz
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: revenant-engine-${{ matrix.rid }}.tar.gz
