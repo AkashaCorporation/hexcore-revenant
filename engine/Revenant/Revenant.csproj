@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <!-- WRAP, not fork: a pinned upstream (ILSpy's MIT engine), invoked not modified. -->
-    <PackageReference Include="ICSharpCode.Decompiler" Version="8.2.0.7535" />
+    <PackageReference Include="ICSharpCode.Decompiler" Version="10.1.0.8386" />
   </ItemGroup>
 
 </Project>

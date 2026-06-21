@@ -17,10 +17,10 @@ ILSpy / ICSharpCode.Decompiler
   Copyright (c) AlphaSierraPapa for the SharpDevelop Team
   Licensed under the MIT License.
 
-  Phase 1 (current): invoked at runtime via the `ilspycmd` global tool
-    (pinned 8.2.0.7535).
-  Phase 2 (planned): linked via a pinned `ICSharpCode.Decompiler` NuGet
-    PackageReference inside a self-contained C# wrapper.
+  Phase 1 (dev fallback): invoked at runtime via the `ilspycmd` global tool
+    (pinned 8.2.0.7535 -- an independent pin, unaffected by the engine version).
+  Phase 2 (current, shipped): linked via the pinned `ICSharpCode.Decompiler`
+    10.1.0.8386 NuGet PackageReference inside a self-contained C# wrapper.
 
   The MIT License text is available at:
   https://github.com/icsharpcode/ILSpy/blob/master/doc/license.txt

@@ -2,6 +2,27 @@
 
 All notable changes to HexCore Revenant are documented here.
 
+## [0.3.0] - Unreleased - "Engine bump: ICSharpCode.Decompiler 8.2 -> 10.1"
+
+Bumped the bundled engine's pinned `ICSharpCode.Decompiler` from 8.2.0.7535 to
+**10.1.0.8386** (= ILSpy 10.1) after a data-driven side-by-side on a real game.
+The `ilspycmd` dev-fallback pin (8.2.0.7535) is INDEPENDENT and left intact.
+
+### Changed
+- `engine/Revenant/Revenant.csproj`: `ICSharpCode.Decompiler` 8.2.0.7535 -> 10.1.0.8386
+  (builds clean, zero API breaks). `Program.cs --version` updated; engine version 0.3.0.
+
+### Why (evidence)
+- 8-agent side-by-side on the same Unity game (Zumbi Blocks 2 `Assembly-CSharp.dll`,
+  ~89K lines): 6 deep per-class diffs + a 662-hunk programmatic classifier + a
+  dropped-logic scanner + a Roslyn compile test. The 19,661-line diff vs 8.2 is **~98%
+  cosmetic/idiomatic with ZERO semantic regressions**. 10.1 is net-better for RE:
+  recovers real identifier names from metadata in the network deserializers where 8.2
+  emitted keyword-escaped synth names (`@int`/`@byte`/`@float` -> `lastSpawnedWave` /
+  `skinGender` / `amount`), resolves enum comparisons (`!= 0` -> `!= Enum.None`), and
+  uses C#12 primary constructors. The one cosmetic wart (a debug GUI `string.Format`
+  vs interpolation) has byte-identical runtime output.
+
 ## [0.2.0] - Unreleased - "Portable: the self-contained engine (Phase 2)"
 
 The user now receives a **portable binary** -- no .NET install, no `ilspycmd`, no

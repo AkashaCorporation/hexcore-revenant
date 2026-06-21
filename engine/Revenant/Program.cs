@@ -19,7 +19,7 @@ using ICSharpCode.Decompiler.Disassembler;
 using ICSharpCode.Decompiler.Metadata;
 using ICSharpCode.Decompiler.TypeSystem;
 
-const string Version = "0.2.0";
+const string Version = "0.3.0";
 
 string? assembly = null;
 bool il = false;
@@ -45,7 +45,7 @@ for (int i = 0; i < args.Length; i++)
 			break;
 		case "--version":
 			Console.WriteLine($"revenant-engine: {Version}");
-			Console.WriteLine("ICSharpCode.Decompiler: 8.2.0.7535");
+			Console.WriteLine("ICSharpCode.Decompiler: 10.1.0.8386");
 			return 0;
 		default:
 			if (!a.StartsWith('-') && assembly is null) { assembly = a; }
