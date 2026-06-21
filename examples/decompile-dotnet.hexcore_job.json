@@ -1,0 +1,30 @@
+{
+	"_comment": "HexCore Revenant — example headless job. Decompiles a managed (.NET) assembly to C# (and IL) via the bundled self-contained engine. The native Remill->Helix pipeline lifts CIL .text as x86 and emits a fake stub; Revenant recovers the real source. Run with: drop this file (renamed *.hexcore_job.json) into a HexCore workspace, or invoke the headless job runner against it. `file` is the managed PE; each step's `output.path` is the recovered-source artifact the pipeline validates.",
+	"file": "C:/Users/Mazum/Desktop/New-Star/Easy/rev_bypass/Bypass.exe",
+	"outDir": "./hexcore-reports/revenant",
+	"continueOnError": true,
+	"steps": [
+		{
+			"_comment": "Recover C#. validateOutput is on for this command, so the runner confirms the .cs artifact was written. The result object ({ ok, isDotNet, backend, mode, elapsedMs }) is captured for onResult / $step[N].result.",
+			"cmd": "hexcore.revenant.decompile",
+			"output": {
+				"path": "./hexcore-reports/revenant/Bypass.decompiled.cs"
+			},
+			"onResult": {
+				"_comment": "If the input was not a managed .NET assembly, skip the IL step — Revenant cannot do anything useful with a native target.",
+				"field": "isDotNet",
+				"operator": "equals",
+				"value": false,
+				"action": "skip",
+				"actionValue": 1
+			}
+		},
+		{
+			"_comment": "Disassemble the same assembly to CIL. Uses the doc-friendly alias for the IL command; resolves to hexcore.revenant.decompileIL.",
+			"cmd": "hexcore.decompile.il",
+			"output": {
+				"path": "./hexcore-reports/revenant/Bypass.il"
+			}
+		}
+	]
+}

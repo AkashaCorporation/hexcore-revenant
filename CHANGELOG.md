@@ -12,6 +12,18 @@ The `ilspycmd` dev-fallback pin (8.2.0.7535) is INDEPENDENT and left intact.
 - `engine/Revenant/Revenant.csproj`: `ICSharpCode.Decompiler` 8.2.0.7535 -> 10.1.0.8386
   (builds clean, zero API breaks). `Program.cs --version` updated; engine version 0.3.0.
 
+### Added (headless pipeline)
+- `src/extension.ts` now accepts the automation runner's `output` as either a bare string
+  OR a `{ path }` object (`resolveOutputPath`), and the quiet/headless return mirrors
+  `RevenantResult.ok` into a `success` field so the pipeline surfaces Revenant's real error
+  (the registry entries that wire the commands into `COMMAND_CAPABILITIES` live in the
+  consuming monorepo's `automationPipelineRunner.ts`). Without this, validated steps would
+  never find the artifact at `output.path`.
+- `examples/decompile-dotnet.hexcore_job.json` -- a runnable headless job: decompile a
+  managed PE to C# + IL with an `onResult` rule (skip IL when `isDotNet == false`).
+  Verified engine-direct: the registered command path with `{ file, output:{path}, quiet }`
+  writes the artifact + returns `success:true`; native targets are rejected.
+
 ### Why (evidence)
 - 8-agent side-by-side on the same Unity game (Zumbi Blocks 2 `Assembly-CSharp.dll`,
   ~89K lines): 6 deep per-class diffs + a 662-hunk programmatic classifier + a
