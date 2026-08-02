@@ -10,7 +10,7 @@ as machine code and the decompiler emits a confident-but-empty
 assembly and recovers the actual program instead. It's the **"Better" tier of HexCore issue #32**
 (the "Minimum" honesty short-circuit ships in the disassembler).
 
-> **Status: v0.3.0.** Portable engine shipped. Wraps `ICSharpCode.Decompiler` **10.1.0.8386**.
+> **Status: v0.4.0.** Portable engine shipped. Wraps `ICSharpCode.Decompiler` **10.1.0.8386**.
 > Validated on a real Unity game (see below).
 
 ---
@@ -26,6 +26,9 @@ Run against the Unity game *Zumbi Blocks 2* (`Assembly-CSharp.dll`):
   zero `goto`, zero stub bodies, **zero non-compilable output** (a Roslyn compile-gate confirmed it),
   with generics, iterator state-machines→`yield`, switch-expressions, tuples and pattern-matching
   all reconstructed correctly.
+- **.NET single-file hosts:** recognizes native apphosts that have no CLR header, reads their
+  managed bundle entries through a bounded in-memory resolver, and decompiles the entry assembly.
+  Validated against a real malicious game installer where the old native dispatch missed the loader.
 
 ## How it works
 
@@ -100,7 +103,7 @@ The extension (TS) — backend resolution + tests:
 ```sh
 npm install        # @types/node, @types/vscode, typescript
 npm run compile    # tsc -> out/
-npm test           # node test/revenant.test.cjs  (15-case base suite)
+npm test           # node test/revenant.test.cjs
 ```
 
 The suite covers managed C#/IL, mixed-mode (C++/CLI) detection, native refusal, truncated / garbage /

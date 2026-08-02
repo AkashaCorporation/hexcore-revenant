@@ -18,8 +18,9 @@ using ICSharpCode.Decompiler.CSharp;
 using ICSharpCode.Decompiler.Disassembler;
 using ICSharpCode.Decompiler.Metadata;
 using ICSharpCode.Decompiler.TypeSystem;
+using HexCore.Revenant;
 
-const string Version = "0.3.0";
+const string Version = "0.4.0";
 
 string? assembly = null;
 bool il = false;
@@ -66,13 +67,24 @@ if (!File.Exists(assembly))
 
 try
 {
-	if (il)
+	if (SingleFileInput.TryOpen(assembly, out SingleFileInput? singleFile))
+	{
+		using (singleFile)
+		{
+			if (il)
+			{
+				WriteIl(singleFile!.MainAssembly);
+			}
+			else
+			{
+				WriteCSharp(singleFile!.MainAssembly, singleFile.Resolver, type);
+			}
+		}
+	}
+	else if (il)
 	{
 		using var pe = new PEFile(assembly);
-		var output = new PlainTextOutput();
-		var disassembler = new ReflectionDisassembler(output, CancellationToken.None);
-		disassembler.WriteModuleContents(pe);
-		Console.Out.Write(output.ToString());
+		WriteIl(pe);
 	}
 	else
 	{
@@ -81,11 +93,8 @@ try
 		{
 			if (Directory.Exists(dir)) { resolver.AddSearchDirectory(dir); }
 		}
-		var decompiler = new CSharpDecompiler(assembly, resolver, new DecompilerSettings());
-		string code = type is null
-			? decompiler.DecompileWholeModuleAsString()
-			: decompiler.DecompileTypeAsString(new FullTypeName(type));
-		Console.Out.Write(code);
+		using var pe = new PEFile(assembly);
+		WriteCSharp(pe, resolver, type);
 	}
 	return 0;
 }
@@ -93,4 +102,21 @@ catch (Exception ex)
 {
 	Console.Error.WriteLine($"revenant-engine error: {ex.Message}");
 	return 1;
+}
+
+static void WriteIl(PEFile pe)
+{
+	var output = new PlainTextOutput();
+	var disassembler = new ReflectionDisassembler(output, CancellationToken.None);
+	disassembler.WriteModuleContents(pe);
+	Console.Out.Write(output.ToString());
+}
+
+static void WriteCSharp(PEFile pe, IAssemblyResolver resolver, string? type)
+{
+	var decompiler = new CSharpDecompiler(pe, resolver, new DecompilerSettings());
+	string code = type is null
+		? decompiler.DecompileWholeModuleAsString()
+		: decompiler.DecompileTypeAsString(new FullTypeName(type));
+	Console.Out.Write(code);
 }

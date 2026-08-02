@@ -2,6 +2,29 @@
 
 All notable changes to HexCore Revenant are documented here.
 
+## [0.4.0] - 2026-08-02 - ".NET single-file apphost recovery"
+
+### Added
+- The bundled engine now uses ILSpy 10's `SingleFileBundle` API to recognize .NET apphosts,
+  select the entry assembly from the bundled runtime/deps metadata, and decompile it as C# or IL.
+- Bundle loading is lazy, in-memory, and bounded: manifest count, entry ranges, per-assembly and
+  total uncompressed sizes are validated, and each dependency is decompressed only if ILSpy asks
+  for it. No embedded assembly is executed or materialized as a temporary executable/DLL.
+- The TypeScript runner now recognizes the official 32-byte .NET bundle marker with a validated
+  manifest offset, so an apphost without a CLR data-directory is routed to Revenant instead of the
+  native Remill -> Helix pipeline.
+- Tests cover valid/invalid bundle markers and an opt-in real-sample integration gate.
+
+### Validated
+- `NFS Most Wanted.exe` SHA-256
+  `06E33FEFBDC89873F0C6052AB98E5F3B2107EB4ED086C905CB2540AAD39C85E2`: recovered the embedded
+  `GameSetup.dll` and its Defender exclusion, `audioupdate.online/update.zip` download, and hidden
+  `update.exe` launch without executing the sample.
+- `update.exe` SHA-256
+  `9040A5606EEED4C9206F58234B608A1952C3942BD82916B8D4A48CF5A390BD78`: reduced a 264 MB apphost
+  and the old 320,088-line runtime-heavy report to 115 lines of entry-assembly C# in 1.88 s,
+  recovering the `%APPDATA%\\Sound` resource drop and hidden `uninstall.bat` launch.
+
 ## [0.3.0] - Unreleased - "Engine bump: ICSharpCode.Decompiler 8.2 -> 10.1"
 
 Bumped the bundled engine's pinned `ICSharpCode.Decompiler` from 8.2.0.7535 to
