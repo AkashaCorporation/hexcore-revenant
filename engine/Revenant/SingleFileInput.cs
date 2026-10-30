@@ -135,7 +135,7 @@ internal sealed class SingleFileInput : IDisposable
 		private readonly string hostFileName;
 		private readonly Dictionary<string, SingleFileBundle.Entry> entries;
 		private readonly Dictionary<string, PEFile> loaded = new(StringComparer.OrdinalIgnoreCase);
-		private readonly UniversalAssemblyResolver fallback;
+		private readonly ManagedAssemblyResolver fallback;
 
 		public BundleAssemblyResolver(string hostFileName, IEnumerable<SingleFileBundle.Entry> assemblyEntries)
 		{
@@ -143,7 +143,7 @@ internal sealed class SingleFileInput : IDisposable
 			entries = assemblyEntries
 				.GroupBy(entry => BundleFileName(entry.RelativePath), StringComparer.OrdinalIgnoreCase)
 				.ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
-			fallback = new UniversalAssemblyResolver(hostFileName, throwOnError: false, targetFramework: null);
+			fallback = new ManagedAssemblyResolver(hostFileName, targetFramework: null);
 		}
 
 		public PEFile Load(SingleFileBundle.Entry entry)
@@ -186,6 +186,11 @@ internal sealed class SingleFileInput : IDisposable
 
 		public Task<MetadataFile?> ResolveModuleAsync(MetadataFile mainModule, string moduleName) =>
 			Task.FromResult(ResolveModule(mainModule, moduleName));
+
+		// ILSpy 11.1 resolves one reference closure against a stable filesystem
+		// snapshot. Bundle entries are immutable in-memory images; only the
+		// UniversalAssemblyResolver fallback needs to own snapshot state.
+		public IDisposable? BeginSnapshot() => fallback.BeginSnapshot();
 
 		public void Dispose()
 		{

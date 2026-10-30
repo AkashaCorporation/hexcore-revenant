@@ -20,7 +20,7 @@ using ICSharpCode.Decompiler.Metadata;
 using ICSharpCode.Decompiler.TypeSystem;
 using HexCore.Revenant;
 
-const string Version = "0.4.0";
+const string Version = "0.5.0";
 
 string? assembly = null;
 bool il = false;
@@ -46,7 +46,7 @@ for (int i = 0; i < args.Length; i++)
 			break;
 		case "--version":
 			Console.WriteLine($"revenant-engine: {Version}");
-			Console.WriteLine("ICSharpCode.Decompiler: 10.1.0.8386");
+			Console.WriteLine($"ICSharpCode.Decompiler: {typeof(FullTypeName).Assembly.GetName().Version}");
 			return 0;
 		default:
 			if (!a.StartsWith('-') && assembly is null) { assembly = a; }
@@ -88,12 +88,11 @@ try
 	}
 	else
 	{
-		var resolver = new UniversalAssemblyResolver(assembly, throwOnError: false, targetFramework: null);
-		foreach (string dir in refDirs)
-		{
-			if (Directory.Exists(dir)) { resolver.AddSearchDirectory(dir); }
-		}
 		using var pe = new PEFile(assembly);
+		var resolver = new ManagedAssemblyResolver(
+			assembly,
+			pe.Metadata.DetectTargetFrameworkId(),
+			refDirs);
 		WriteCSharp(pe, resolver, type);
 	}
 	return 0;

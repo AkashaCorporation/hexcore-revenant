@@ -1,0 +1,11 @@
+CHANGELOG.md
+ILSPY_11_1_MIGRATION_ACCEPTANCE_2026-09-26.md
+NOTICE
+README.md
+engine/Revenant/ManagedAssemblyResolver.cs
+engine/Revenant/Program.cs
+engine/Revenant/Revenant.csproj
+engine/Revenant/SingleFileInput.cs
+package.json
+src/ilspyRunner.ts
+test/revenant.test.cjs
