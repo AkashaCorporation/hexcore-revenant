@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>revenant-engine</AssemblyName>
     <RootNamespace>HexCore.Revenant</RootNamespace>
+    <Version>0.5.0</Version>
     <!-- Self-contained single-file publish: the user receives a portable binary
          with no .NET install and no library downloads. -->
     <InvariantGlobalization>true</InvariantGlobalization>
@@ -15,7 +16,7 @@
 
   <ItemGroup>
     <!-- WRAP, not fork: a pinned upstream (ILSpy's MIT engine), invoked not modified. -->
-    <PackageReference Include="ICSharpCode.Decompiler" Version="10.1.0.8386" />
+    <PackageReference Include="ICSharpCode.Decompiler" Version="11.1.0.9782" />
   </ItemGroup>
 
 </Project>

@@ -10,7 +10,7 @@ as machine code and the decompiler emits a confident-but-empty
 assembly and recovers the actual program instead. It's the **"Better" tier of HexCore issue #32**
 (the "Minimum" honesty short-circuit ships in the disassembler).
 
-> **Status: v0.4.0.** Portable engine shipped. Wraps `ICSharpCode.Decompiler` **10.1.0.8386**.
+> **Status: v0.5.0.** Portable engine shipped. Wraps `ICSharpCode.Decompiler` **11.1.0.9782**.
 > Validated on a real Unity game (see below).
 
 ---
@@ -29,14 +29,18 @@ Run against the Unity game *Zumbi Blocks 2* (`Assembly-CSharp.dll`):
 - **.NET single-file hosts:** recognizes native apphosts that have no CLR header, reads their
   managed bundle entries through a bounded in-memory resolver, and decompiles the entry assembly.
   Validated against a real malicious game installer where the old native dispatch missed the loader.
+- **Dependency collision safety:** validates each resolution candidate as a managed assembly. A
+  native `System.dll` or other same-named PE beside the target no longer shadows the real framework
+  dependency or aborts C# decompilation.
 
 ## How it works
 
 Revenant is a **wrapper, not a fork** — the same philosophy HexCore uses for Remill (which links a
 pinned `libremill` rather than forking it). It wraps a **pinned** version of
 [ILSpy](https://github.com/icsharpcode/ILSpy)'s MIT-licensed `ICSharpCode.Decompiler` engine and
-exposes it through the HexCore IDE. The engine is invoked **unmodified** (raw passthrough), so it's
-trivial to follow upstream: bumping the pin is a one-line, low-risk change.
+exposes it through the HexCore IDE. The engine is invoked **unmodified** (raw passthrough).
+Upstream bumps remain narrow, but must be compiled and corpus-gated because resolver interfaces
+can evolve; ILSpy 11.1 added the `IAssemblyResolver.BeginSnapshot()` reference-closure lifecycle.
 
 It belongs to HexCore's **"wrapped engines"** class — engines that drive a third-party prebuilt tool
 over a **subprocess**, as opposed to the native (N-API / `node-gyp` `.node`) engines compiled from
@@ -106,8 +110,11 @@ npm run compile    # tsc -> out/
 npm test           # node test/revenant.test.cjs
 ```
 
-The suite covers managed C#/IL, mixed-mode (C++/CLI) detection, native refusal, truncated / garbage /
-empty / missing inputs, the bundled-vs-`ilspycmd` backend choice, and the `detectDotNet` units.
+The suite covers managed C#/IL, mixed-mode (C++/CLI) detection, native refusal, native same-name
+dependency collisions, truncated / garbage / empty / missing inputs, the bundled-vs-`ilspycmd`
+backend choice, and the `detectDotNet` units.
+Version provenance reports the wrapper and `ICSharpCode.Decompiler` identities separately;
+the legacy `toolVersion` field remains an alias of the decompiler version.
 
 **Phase 1 dev fallback** (optional — only if you run without the bundled binary):
 ```sh

@@ -2,6 +2,34 @@
 
 All notable changes to HexCore Revenant are documented here.
 
+## [0.5.0] - 2026-09-26 - "ILSpy 11.1 and truthful version provenance"
+
+### Changed
+- Updated the bundled engine from `ICSharpCode.Decompiler` 10.1.0.8386 to
+  11.1.0.9782, the engine shipped with ILSpy 11.1.
+- Implemented `IAssemblyResolver.BeginSnapshot()` by delegating filesystem
+  snapshot ownership to the fallback `UniversalAssemblyResolver`; immutable
+  in-memory bundle entries retain their existing bounded cache.
+- Replaced the hardcoded decompiler version with the loaded assembly identity.
+- Split `backendVersion` from `decompilerVersion`; backward-compatible
+  `toolVersion` now means the decompiler engine rather than the Revenant wrapper.
+- Added a managed-candidate resolver gate. A native PE whose filename collides
+  with a referenced assembly beside the target is rejected without aborting C#
+  recovery; resolution continues through explicit reference paths and the
+  framework/GAC.
+
+### Validation
+- Existing managed DLL/EXE, IL, mixed-mode, native refusal, malformed-input,
+  real single-file, and native dependency-collision gates pass 20/20.
+- HX-SH-009 passes on the original Grammarly NSIS plugin directory: C# output
+  is byte-identical to the hash-identical isolated control despite the adjacent
+  native `System.dll`.
+- `Bypass.exe` C#/IL and the 264 MB `update.exe` apphost remain byte-identical;
+  the NFS apphost changes only two anonymous delegates to lambda syntax.
+- Self-contained publish and archive creation pass for all four release RIDs.
+- Adds a version-provenance regression for Revenant 0.5.0 and
+  ICSharpCode.Decompiler 11.1.0.9782.
+
 ## [0.4.0] - 2026-08-02 - ".NET single-file apphost recovery"
 
 ### Added
